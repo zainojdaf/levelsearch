@@ -424,7 +424,7 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
           btn.setInteractive();
           this._makeBouncyButton(btn, btnScale, () => {
             this._closeCreatorMenu(true);
-            this._openOnlineLevelsScene({ type: 6 });
+            this._openFeaturedMenu();
           }, () => true);
         } else if (isEditorButton) {
           btn.setInteractive();
@@ -1028,6 +1028,56 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
     // Track the active scene so WDSearch.playLevel() can find it
     window._wdActiveScene = this;
 
+    // shared close/play message handling for any full-screen gdbrowser iframe
+    // (search.html -> results.html, or results.html opened directly for featured)
+    const _ensureWdMsgListener = () => {
+      if (window._wdMsgListenerAdded) return;
+      window._wdMsgListenerAdded = true;
+      window.addEventListener('message', function(e) {
+        const scene = window._wdActiveScene;
+        if (!scene) return;
+        if (e.data && e.data.type === 'WD_CLOSE_SEARCH') {
+          const f = document.getElementById('wd-search-iframe');
+          if (f) f.remove();
+          window._wdSearchFrame = null;
+          try { scene.input.keyboard.enableGlobalCapture(); } catch(e){}
+          try { scene.input.keyboard.enabled = true; } catch(e){}
+          try { scene.input.enabled = true; } catch(e){}
+          if (scene._audio) try { scene._audio.resumeMusic(); } catch(e){}
+        }
+        if (e.data && e.data.type === 'WD_PLAY_LEVEL') {
+          const f = document.getElementById('wd-search-iframe');
+          if (f) f.remove();
+          window._wdSearchFrame = null;
+          try { scene.input.keyboard.enableGlobalCapture(); } catch(e){}
+          try { scene.input.keyboard.enabled = true; } catch(e){}
+          try { scene.input.enabled = true; } catch(e){}
+          window.levelID = String(e.data.id);
+          window.alreadydownloaded = false;
+          scene._openSearchMenu();
+        }
+      });
+    };
+
+    // featured tab: same full-screen iframe approach as search, just pointed
+    // straight at results.html in featured mode (type=6) instead of search.html
+    this._openFeaturedMenu = () => {
+      if (window._wdSearchFrame) return; // already open
+      try { this.input.keyboard.disableGlobalCapture(); } catch(e){}
+      try { this.input.keyboard.enabled = false; } catch(e){}
+      try { this.input.enabled = false; } catch(e){}
+      const audio = this._audio;
+      if (audio) try { audio.pauseMusic(); } catch(e){}
+
+      const frame = document.createElement('iframe');
+      frame.id = 'wd-search-iframe';
+      frame.src = './gdbrowser/featured.html?v=' + Date.now();
+      frame.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:9999;background:#000;';
+      document.body.appendChild(frame);
+      window._wdSearchFrame = frame;
+      _ensureWdMsgListener();
+    };
+
     this._openSearchMenu = () => {
       // If launched with ?id=levelID, download that level directly (no iframe)
       if (!window.levelID) {
@@ -1047,33 +1097,7 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
         window._wdSearchFrame = frame;
 
         // Listen for messages from the iframe
-        if (!window._wdMsgListenerAdded) {
-          window._wdMsgListenerAdded = true;
-          window.addEventListener('message', function(e) {
-            const scene = window._wdActiveScene;
-            if (!scene) return;
-            if (e.data && e.data.type === 'WD_CLOSE_SEARCH') {
-              const f = document.getElementById('wd-search-iframe');
-              if (f) f.remove();
-              window._wdSearchFrame = null;
-              try { scene.input.keyboard.enableGlobalCapture(); } catch(e){}
-              try { scene.input.keyboard.enabled = true; } catch(e){}
-              try { scene.input.enabled = true; } catch(e){}
-              if (scene._ ) try { scene._audio.resumeMusic(); } catch(e){}
-            }
-            if (e.data && e.data.type === 'WD_PLAY_LEVEL') {
-              const f = document.getElementById('wd-search-iframe');
-              if (f) f.remove();
-              window._wdSearchFrame = null;
-              try { scene.input.keyboard.enableGlobalCapture(); } catch(e){}
-              try { scene.input.keyboard.enabled = true; } catch(e){}
-              try { scene.input.enabled = true; } catch(e){}
-              window.levelID = String(e.data.id);
-              window.alreadydownloaded = false;
-              scene._openSearchMenu();
-            }
-          });
-        }
+        _ensureWdMsgListener();
         return;
       }
       if (this._searchOverlay) return;
