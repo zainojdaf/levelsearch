@@ -160,9 +160,11 @@ function Append(firstLoad, noCache) {
 		let songColor = x.customSong == 0 ? "blue" : "whatIfItWasPurple"
 		let noLink = songColor != "whatIfItWasPurple"
 
-		// use the base face without baked-in fire (we overlay the gif instead)
+		// epic/legendary/mythic: base face + animated gif overlay (gif hole is ~40% of its size, so gif = 2.5x face)
+		// featured and all other ratings: keep existing combined image as-is
 		const _rawFace = x.difficultyFace || 'unrated'
-		const _baseFace = _rawFace.replace(/-epic$|-legendary$|-mythic$|-featured$/, '')
+		const _useGif = x.mythic || x.legendary || x.epic
+		const _baseFace = _useGif ? _rawFace.replace(/-epic$|-legendary$|-mythic$/, '') : _rawFace
 		let diffSrc = `assets/difficulties/${_baseFace}.png`
 		const _fireGif = x.mythic ? 'assets/MythicFire.gif' : x.legendary ? 'assets/LegendaryFire.gif' : x.epic ? 'assets/EpicFire.gif' : null
 
@@ -186,10 +188,14 @@ function Append(firstLoad, noCache) {
 			</h3>
 		
 			<div class="center" style="position:absolute; top: ${6.5 + (y * 33.5) + (x.coins == 0 ? 2.5 : 0)}%; left: 4.4%; transform:scale(0.82); height: 10%; width: 12.5%;">
-	<div style="position:relative; display:inline-block; height:150%;">
-		${_fireGif ? `<img src="${_fireGif}" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-68%) scale(${x.mythic || x.legendary ? '1.9' : '1.6'}); pointer-events:none; z-index:0;">` : ''}
-		<img class="help spaced" title="${x.difficulty}${x.mythic ? " (Mythic)" : x.legendary ? " (Legendary)" : x.epic ? " (Epic)" : x.featured ? " (Featured)" : ""}" src="${diffSrc}" height="100%" style="display:block; position:relative; z-index:1; margin-bottom: 0%; ${x.mythic || x.legendary ? 'transform:scale(1.45);' : x.epic ? 'transform:scale(1.25);' : x.featured ? 'transform:scale(1.1);' : ''}">
-	</div>
+				${_fireGif ? `
+				<div style="position:relative; display:inline-block;">
+					<img src="${_fireGif}" style="position:absolute; left:50%; height:310%; transform:translate(-50%, ${x.epic ? '-63%' : '-50%'}); pointer-events:none; z-index:0;">
+					<img class="help spaced" title="${x.difficulty} (${x.mythic ? 'Mythic' : x.legendary ? 'Legendary' : 'Epic'})" src="${diffSrc}" height="150%" style="position:relative; z-index:1; margin-bottom:0%; ${x.mythic || x.legendary ? 'transform:scale(1.45);' : 'transform:scale(1.25);'}">
+				</div>
+				` : `
+				<img class="help spaced" title="${x.difficulty}${x.featured ? ' (Featured)' : ''}" src="${diffSrc}" height="150%" style="margin-bottom: 0%; ${x.featured ? 'transform:scale(1.1);' : ''}">
+				`}
 				<h3 style="margin-top:0.8vh">${x.difficulty.includes('Demon') ? "Demon" : x.difficulty}</h3>
 				${x.stars != 0 ? `<h3 class="help" title="${x.stars} star${x.stars == 1 ? "" : "s"}">${x.stars}<img class="valign sideSpaceB" src="assets/star.png" height="35%" style="transform:translateY(-8%)"></h3>` : ""}
 				<div id="coins" style="margin-top: 3%" title="${x.coins} user coin${x.coins == 1 ? "" : "s"} (${x.verifiedCoins ? "" : "un"}verified)">
