@@ -7858,7 +7858,7 @@ _applyMirrorEffect() {
     const isFeatured = (params.type === 6);
     const shell = this._openListScene(
       isFeatured ? "" : "Online Levels",
-      180,
+      150,
       () => { this._onlineLevelsOverlay = null; this._openCreatorMenu(); }
     );
     const { objects, listLeft, listTop, panelW, panelH,
@@ -7933,26 +7933,99 @@ _applyMirrorEffect() {
     const _panelMask = _panelMaskShape.createGeometryMask();
     objects.push(_panelMaskShape);
 
+    const fmtNum = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const lengthNames = ["Tiny", "Short", "Medium", "Long", "XL", "Plat."];
+    const diffMap = {
+      0: "difficulty_00_btn_001.png", 10: "difficulty_01_btn_001.png",
+      20: "difficulty_02_btn_001.png", 30: "difficulty_03_btn_001.png",
+      40: "difficulty_04_btn_001.png", 50: "difficulty_05_btn_001.png"
+    };
+
     const _buildLevelCell = (levelData, rowIdx) => {
-      const rowH = 180;
+      const rowH = 150;
       const rowY = _panelBoundaryTop + rowIdx * rowH - scrollOffsetY;
       const cellObjs = [];
-      const rx = listLeft;
       const boundaryTop = _panelBoundaryTop;
       const boundaryBottom = _panelBoundaryBottom;
-      if (rowIdx > 0 && rowY >= boundaryTop && rowY <= boundaryBottom) {
-        const div = this.add.rectangle(rx + panelW / 2, rowY, panelW - 10, 1.5, 0x000000, 0.6)
-          .setScrollFactor(0).setDepth(203).setOrigin(0.5, 0.5);
+
+      if (rowY + rowH < boundaryTop || rowY > boundaryBottom) return cellObjs;
+
+      // divider line between rows
+      if (rowIdx > 0) {
+        const div = this.add.rectangle(listLeft + panelW / 2, rowY, panelW - 10, 1.5, 0x000000, 0.6)
+          .setScrollFactor(0).setDepth(203).setOrigin(0.5, 0.5).setMask(_panelMask);
         cellObjs.push(div);
       }
 
+      const cy = rowY + rowH / 2;
+      const diffVal = levelData.difficulty || 0;
+      const diffFrame = diffMap[diffVal] || "difficulty_00_btn_001.png";
+      const diffIcon = this.add.image(listLeft + 50, cy - 15, "GJ_GameSheet03", diffFrame)
+        .setScrollFactor(0).setDepth(204).setScale(0.7).setMask(_panelMask);
+      cellObjs.push(diffIcon);
+
+      // stars
+      if (levelData.stars > 0) {
+        const starTxt = this.add.bitmapText(listLeft + 30, cy + 22, "bigFont", String(levelData.stars), 18)
+          .setScrollFactor(0).setDepth(204).setOrigin(0.5, 0.5).setMask(_panelMask);
+        const starIcon = this.add.image(listLeft + 46, cy + 22, "GJ_WebSheet", "GJ_bigStar_001.png")
+          .setScrollFactor(0).setDepth(204).setScale(0.22).setMask(_panelMask);
+        cellObjs.push(starTxt, starIcon);
+      }
+
+      // coins
+      if (levelData.coins > 0) {
+        const coinFrame = levelData.coinsVerified ? "GJ_coinsIcon_001.png" : "GJ_coinsIcon2_001.png";
+        for (let ci = 0; ci < Math.min(levelData.coins, 3); ci++) {
+          const coin = this.add.image(listLeft + 24 + ci * 14, cy + 38, "GJ_GameSheet03", coinFrame)
+            .setScrollFactor(0).setDepth(204).setScale(0.45).setMask(_panelMask);
+          cellObjs.push(coin);
+        }
+      }
+
+      // level name
+      const name = this.add.bitmapText(listLeft + 95, cy - 40, "bigFont", levelData.name.slice(0, 26), 26)
+        .setScrollFactor(0).setDepth(204).setMask(_panelMask);
+      cellObjs.push(name);
+
+      // author
+      const author = this.add.bitmapText(listLeft + 95, cy - 10, "goldFont", "By " + levelData.author, 20)
+        .setScrollFactor(0).setDepth(204).setMask(_panelMask);
+      cellObjs.push(author);
+
+      // song name
+      const song = this.add.bitmapText(listLeft + 95, cy + 14, "bigFont", levelData.songName.slice(0, 30), 16)
+        .setScrollFactor(0).setDepth(204).setTint(0x9999ff).setMask(_panelMask);
+      cellObjs.push(song);
+
+      // stats row: length, downloads, likes
+      const statsY = cy + 38;
+      const timeIcon = this.add.image(listLeft + 95, statsY, "GJ_GameSheet03", "GJ_timeIcon_001.png")
+        .setScrollFactor(0).setDepth(204).setScale(0.5).setMask(_panelMask);
+      const lenTxt = this.add.bitmapText(listLeft + 110, statsY, "goldFont", lengthNames[levelData.length] || "?", 18)
+        .setScrollFactor(0).setDepth(204).setOrigin(0, 0.5).setMask(_panelMask);
+      const dlIcon = this.add.image(listLeft + 185, statsY, "GJ_GameSheet03", "GJ_downloadsIcon_001.png")
+        .setScrollFactor(0).setDepth(204).setScale(0.5).setMask(_panelMask);
+      const dlTxt = this.add.bitmapText(listLeft + 200, statsY, "goldFont", fmtNum(levelData.downloads), 18)
+        .setScrollFactor(0).setDepth(204).setOrigin(0, 0.5).setMask(_panelMask);
+      const likeIcon = this.add.image(listLeft + 310, statsY, "GJ_GameSheet03", "GJ_likesIcon_001.png")
+        .setScrollFactor(0).setDepth(204).setScale(0.5).setMask(_panelMask);
+      const likeTxt = this.add.bitmapText(listLeft + 325, statsY, "goldFont", fmtNum(levelData.likes), 18)
+        .setScrollFactor(0).setDepth(204).setOrigin(0, 0.5).setMask(_panelMask);
+      cellObjs.push(timeIcon, lenTxt, dlIcon, dlTxt, likeIcon, likeTxt);
+
+      // play button on right
+      const playBtn = this.add.image(listLeft + panelW - 55, cy, "GJ_GameSheet03", "GJ_playBtn2_001.png")
+        .setScrollFactor(0).setDepth(204).setScale(0.9).setFlipY(true).setAngle(90)
+        .setInteractive().setMask(_panelMask);
+      this._makeBouncyButton(playBtn, 1, () => {
+        if (levelData.id) this._openLevelInfoScreen(levelData.id, levelData);
+      }, () => true);
+      cellObjs.push(playBtn);
+
       return cellObjs;
     };
-    const _parseKV = (str) => {
-      const m = {}, p = str.split(":");
-      for (let i = 0; i + 1 < p.length; i += 2) m[p[i]] = p[i + 1];
-      return m;
-    };
+
     const _setPage = async (page) => {
       if (_loading) return;
       _loading = true;
@@ -7960,128 +8033,79 @@ _applyMirrorEffect() {
       for (const o of activeCellObjs) if (o && o.destroy) o.destroy();
       activeCellObjs = [];
       clearRows();
-      if (isFeatured && this._featuredPageUpdate) {
-        this._featuredPageUpdate(page);
-      }
+      if (isFeatured && this._featuredPageUpdate) this._featuredPageUpdate(page);
 
       spinSprite.setVisible(true);
       refreshBtn.setVisible(false);
       pageLbl.setVisible(false);
-      this.tweens.killTweensOf(prevBtn, "scale");
-      prevBtn.setScale(1);
-      prevBtn._pressed = false;
-      prevBtn.setVisible(false);
-      this.tweens.killTweensOf(nextBtn, "scale");
-      nextBtn.setScale(1);
-      nextBtn._pressed = false;
-      nextBtn.setVisible(false);
+      prevBtn.setScale(1); prevBtn._pressed = false; prevBtn.setVisible(false);
+      nextBtn.setScale(1); nextBtn._pressed = false; nextBtn.setVisible(false);
 
       try {
-        let response = cache[page];
-        if (!response) {
-          const PROXY = (window._gdProxyUrl || "").replace(/\/$/, "");
-          if (!PROXY) throw new Error("no proxy configured");
-          const body = Object.entries({ secret: "Wmfd2893gb7", page, ...params })
-            .map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join("&");
-          let retryCount = 0;
-          const maxRetries = 3;
-          let res;
-          while (retryCount < maxRetries) {
-            res = await fetch(`${PROXY}/getGJLevels21.php`, {
-              method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body
-            });
-            
-            if (res.status === 429) {
-              retryCount++;
-              if (retryCount >= maxRetries) {
-                throw new Error(`rate limited after ${maxRetries} retries`);
-              }
-              await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount)));
-              continue;
-            }
-            break;
-          }
+        let levels = cache[page];
+        if (!levels) {
+          // use gdbrowser api — returns clean json, no proxy needed
+          const typeParam = params.type !== undefined ? `&type=${params.type}` : "";
+          const res = await fetch(`https://gdbrowser.com/api/search/*?page=${page}&count=10${typeParam}`);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          response = await res.text();
-          if (!response || response === "-1") throw new Error("no results");
-          cache[page] = response;
+          levels = await res.json();
+          if (!levels || levels === "-1" || !levels.length) throw new Error("no results");
+          cache[page] = levels;
         }
+
         spinSprite.setVisible(false);
         refreshBtn.setVisible(true);
         pageLbl.setVisible(true);
         prevBtn.setVisible(page > 0);
-        nextBtn.setVisible(true);
-        const sections   = response.split("#");
-        const levelStrs  = (sections[0] || "").split("|").filter(Boolean);
-        const playerStrs = (sections[1] || "").split("|").filter(Boolean);
-        const songStrs   = (sections[2] || "").split("~:~").filter(Boolean);
-        const pageInfo   = (sections[3] || "0:0:10").split(":");
 
-        const playerMap = {};
-        for (const ps of playerStrs) {
-          const p = ps.split(":");
-          if (p.length >= 2) playerMap[p[0]] = p[1];
-        }
-        const songMap = {};
-        for (const ss of songStrs) {
-          const sp = ss.split("~|~"), sm = {};
-          for (let i = 0; i + 1 < sp.length; i += 2) sm[sp[i]] = sp[i + 1];
-          if (sm["1"]) songMap[sm["1"]] = sm["2"] || "";
-        }
-        const total  = parseInt(pageInfo[0]) || 0;
-        const offset = parseInt(pageInfo[1]) || 0;
-        const count  = parseInt(pageInfo[2]) || 10;
-        const start  = offset + 1;
-        const end    = count * (page + 1);
-        pageLbl.setText(`${start} to ${end} of ${total}`);
-        const maxPages = Math.ceil(total / count);
-        const hasNextPage = (page + 1) < maxPages;
-        nextBtn.setVisible(hasNextPage);
+        const total = levels[0]?.results || 0;
+        const count = 10;
+        pageLbl.setText(`${page * count + 1} to ${(page + 1) * count} of ${fmtNum(total)}`);
+        nextBtn.setVisible(levels.length >= count);
+
         scrollOffsetY = 0;
-        // wip
-        _lastLevelStrs = levelStrs;
-        _lastLevelData = levelStrs.map((ls) => {
-          const m = _parseKV(ls);
-          const rawLikes = parseInt(m["14"]) || 0;
-          const diffDenom = parseInt(m["8"]) || 0;
-          const isDemon   = parseInt(m["17"]) === 1;
-          const isAuto    = parseInt(m["25"]) === 1;
-          let diffIdx = 0;
-          if (isAuto) {
-            diffIdx = 11;
-          } else if (isDemon) {
-            const d9 = parseInt(m["9"]);
-            const d43 = parseInt(m["43"]);
-            if (!isNaN(d9) && d9 >= 1 && d9 <= 5) {
-              diffIdx = [6, 7, 8, 9, 10][d9 - 1] ?? 8;
-            } else if (!isNaN(d43)) {
-              const demonMap43 = { 3: 6, 4: 7, 0: 8, 5: 9, 6: 10 };
-              diffIdx = demonMap43.hasOwnProperty(d43) ? demonMap43[d43] : 8;
-            } else {
-              diffIdx = 8;
-            }
-          } else {
-            const denomIdx = Math.min(6, Math.max(0, Math.round(diffDenom / 10)));
-            diffIdx = [0, 0, 1, 2, 3, 4, 5][denomIdx];
-          }
-          return {
-            id:            m["1"]  || null,
-            name:          m["2"]  || "Unknown",
-            author:        playerMap[m["6"]] || ("Player " + (m["6"] || "?")),
-            difficulty:    diffIdx,
-            downloads:     parseInt(m["10"]) || 0,
-            length:        parseInt(m["15"]) || 0,
-            likes:         rawLikes,
-            stars:         parseInt(m["18"]) || 0,
-            coins:         parseInt(m["37"]) || 0,
-            coinsVerified: m["38"] === "1",
-            songName:      m["35"]
-              ? (songMap[m["35"]] || ("Song #" + m["35"]))
-              : ("Song #" + (m["12"] || "0"))
-          };
-        });
+        _lastLevelData = levels.map(x => ({
+          id:            String(x.id),
+          name:          x.name || "Unknown",
+          author:        x.author || "Unknown",
+          difficulty:    x.difficultyFace ? (() => {
+            const f = x.difficultyFace.replace(/-epic$|-legendary$|-mythic$|-featured$/, "");
+            const faceToVal = {
+              "unrated": 0, "auto": 0, "easy": 10, "normal": 20,
+              "hard": 30, "harder": 40, "insane": 50,
+              "demon": 50, "demon-easy": 50, "demon-medium": 50,
+              "demon-hard": 50, "demon-insane": 50, "demon-extreme": 50
+            };
+            return faceToVal[f] ?? 0;
+          })() : 0,
+          diffFrame:     (() => {
+            const f = (x.difficultyFace || "unrated").replace(/-epic$|-legendary$|-mythic$|-featured$/, "");
+            const faceToFrame = {
+              "unrated": "difficulty_00_btn_001.png",
+              "auto":    "difficulty_00_btn_001.png",
+              "easy":    "difficulty_01_btn_001.png",
+              "normal":  "difficulty_02_btn_001.png",
+              "hard":    "difficulty_03_btn_001.png",
+              "harder":  "difficulty_04_btn_001.png",
+              "insane":  "difficulty_05_btn_001.png",
+              "demon":            "difficulty_06_btn_001.png",
+              "demon-easy":       "difficulty_06_btn_001.png",
+              "demon-medium":     "difficulty_06_btn_001.png",
+              "demon-hard":       "difficulty_06_btn_001.png",
+              "demon-insane":     "difficulty_06_btn_001.png",
+              "demon-extreme":    "difficulty_06_btn_001.png",
+            };
+            return faceToFrame[f] || "difficulty_00_btn_001.png";
+          })(),
+          downloads:     x.downloads || 0,
+          length:        typeof x.length === "number" ? x.length : ["Tiny","Short","Medium","Long","XL","Plat."].indexOf(x.length),
+          likes:         x.likes || 0,
+          stars:         x.stars || 0,
+          coins:         x.coins || 0,
+          coinsVerified: !!x.verifiedCoins,
+          songName:      (x.songName || "").replace(/[^ -~]/g, "").trim() || x.songName || ""
+        }));
+        _lastLevelStrs = _lastLevelData.map(l => l.id);
         _lastLevelData.forEach((levelData, idx) => {
           const cellObjs = _buildLevelCell(levelData, idx);
           activeCellObjs.push(...cellObjs);
@@ -8091,6 +8115,7 @@ _applyMirrorEffect() {
       } catch (err) {
         spinSprite.setVisible(false);
         refreshBtn.setVisible(true);
+        console.warn("featured tab error:", err);
       }
       _loading = false;
     };
@@ -8102,7 +8127,7 @@ _applyMirrorEffect() {
     const _onWheel = (pointer, gameObjects, deltaX, deltaY) => {
       if (pointer.x < listLeft || pointer.x > listLeft + panelW) return;
       if (pointer.y < listTop  || pointer.y > listTop + panelH) return;
-      const maxScroll = Math.max(0, (_lastLevelStrs ? _lastLevelStrs.length : 0) * 180 - (panelH - 33));
+      const maxScroll = Math.max(0, (_lastLevelStrs ? _lastLevelStrs.length : 0) * 150 - (panelH - 33));
       const newScrollOffset = Math.max(0, Math.min(scrollOffsetY + deltaY * 0.5, maxScroll));
       if (newScrollOffset !== scrollOffsetY) {
         scrollOffsetY = newScrollOffset;
@@ -8139,7 +8164,7 @@ _applyMirrorEffect() {
       if (pointer.y < listTop  || pointer.y > listTop + panelH) return;
       const deltaY = dragStartY - pointer.y;
       if (Math.abs(deltaY) < dragThreshold) return;
-      const maxScroll = Math.max(0, (_lastLevelStrs ? _lastLevelStrs.length : 0) * 180 - (panelH - 33));
+      const maxScroll = Math.max(0, (_lastLevelStrs ? _lastLevelStrs.length : 0) * 150 - (panelH - 33));
       let newScrollOffset = dragStartScrollOffset + deltaY * 0.5;
       const elasticLimit = 100;
       if (newScrollOffset < -elasticLimit) {
@@ -8161,7 +8186,7 @@ _applyMirrorEffect() {
 
     const onDragEnd = () => {
       isDragging = false;
-      const maxScroll = Math.max(0, (_lastLevelStrs ? _lastLevelStrs.length : 0) * 180 - (panelH - 33));
+      const maxScroll = Math.max(0, (_lastLevelStrs ? _lastLevelStrs.length : 0) * 150 - (panelH - 33));
       let targetScrollOffset = scrollOffsetY;
       if (scrollOffsetY < 0) {
         targetScrollOffset = 0;
