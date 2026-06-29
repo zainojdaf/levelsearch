@@ -182,16 +182,25 @@ function Append(firstLoad, noCache) {
 				${x.orbs != 0 ? `<img class="help valign rightSpace" title="Mana Orbs" src="assets/orbs.png" height="14%">${x.orbs}` : ""}
 			</h3>
 		
-			<div class="center" style="position:absolute; top: ${6.5 + (y * 33.5) + (x.coins == 0 ? 2.5 : 0)}%; left: 4.4%; transform:scale(0.82); height: 10%; width: 12.5%;">
-	<img class="help spaced" title="${x.difficulty}${x.mythic ? " (Mythic)" : x.legendary ? " (Legendary)" : x.epic ? " (Epic)" : x.featured ? " (Featured)" : ""}" src="${diffSrc}" height="150%" style="margin-bottom: 0%; ${x.mythic || x.legendary ? 'transform:scale(1.45);' : x.epic ? 'transform:scale(1.25);' : x.featured ? 'transform:scale(1.1);' : ''}">
-				<h3 style="margin-top:0.8vh">${x.difficulty.includes('Demon') ? "Demon" : x.difficulty}</h3>
-				${x.stars != 0 ? `<h3 class="help" title="${x.stars} star${x.stars == 1 ? "" : "s"}">${x.stars}<img class="valign sideSpaceB" src="assets/star.png" height="35%" style="transform:translateY(-8%)"></h3>` : ""}
-				<div id="coins" style="margin-top: 3%" title="${x.coins} user coin${x.coins == 1 ? "" : "s"} (${x.verifiedCoins ? "" : "un"}verified)">
-					${x.coins > 0 ? `<img src="assets/${x.verifiedCoins ? 'silver' : 'brown'}coin.png" height="50%" class="help">` : ""}
-					${x.coins > 1 ? `<img src="assets/${x.verifiedCoins ? 'silver' : 'brown'}coin.png" height="50%" class="help squeezeB">` : ""}
-					${x.coins > 2 ? `<img src="assets/${x.verifiedCoins ? 'silver' : 'brown'}coin.png" height="50%" class="help squeezeB">` : ""}
-				</div>
-			</div>
+<div class="center" style="position:absolute; top: ${6.5 + (y * 33.5) + (x.coins == 0 ? 2.5 : 0)}%; left: 4.4%; transform:scale(0.82); height: 10%; width: 12.5%;">
+    <!-- 1. The fire image is explicitly forced to the bottom layer (z-index: 1) inside its dynamic style string -->
+    <img class="help spaced" title="${x.difficulty}${x.mythic ? " (Mythic)" : x.legendary ? " (Legendary)" : x.epic ? " (Epic)" : x.featured ? " (Featured)" : ""}" src="${diffSrc}" height="150%" style="margin-bottom: 0%; position: relative; z-index: 1; ${x.mythic || x.legendary ? 'transform:scale(1.45);' : x.epic ? 'transform:scale(1.25);' : x.featured ? 'transform:scale(1.1);' : ''}">
+	
+    <!-- 2. The difficulty text is lifted to the top layer (z-index: 2), forcing it to overlap the fire -->
+    <h3 style="margin-top:0.8vh; position: relative; z-index: 2;">
+        ${x.difficulty.includes('Demon') ? "Demon" : x.difficulty}
+    </h3>
+	
+    <!-- 3. The stars text is also lifted to the top layer (z-index: 2) so the fire doesn't cover the star counts -->
+    ${x.stars != 0 ? `<h3 class="help" title="${x.stars} star${x.stars == 1 ? "" : "s"}" style="position: relative; z-index: 2;">${x.stars}<img class="valign sideSpaceB" src="assets/star.png" height="35%" style="transform:translateY(-8%)"></h3>` : ""}
+	
+    <!-- 4. The coins container is also lifted to the top layer (z-index: 2) so the fire doesn't cover the silver/brown coins -->
+    <div id="coins" style="margin-top: 3%; position: relative; z-index: 2;" title="${x.coins} user coin${x.coins == 1 ? "" : "s"} (${x.verifiedCoins ? "" : "un"}verified)">
+        ${x.coins > 0 ? `<img src="assets/${x.verifiedCoins ? 'silver' : 'brown'}coin.png" height="50%" class="help">` : ""}
+        ${x.coins > 1 ? `<img src="assets/${x.verifiedCoins ? 'silver' : 'brown'}coin.png" height="50%" class="help squeezeB">` : ""}
+        ${x.coins > 2 ? `<img src="assets/${x.verifiedCoins ? 'silver' : 'brown'}coin.png" height="50%" class="help squeezeB">` : ""}
+    </div>
+</div>
 			<div class="center" style="position:absolute; right: 7%; transform:translateY(-16.25vh); height: 10%">
 				${playBtn}
 				<p title="Level ID" style="text-align: right; color: rgba(0, 0, 0, 0.4); font-size: 2.2vh; transform: translate(2.8vh, 2.5vh)">#${x.id}</p>
