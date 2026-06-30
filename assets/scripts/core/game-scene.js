@@ -225,8 +225,6 @@ class GameScene extends Phaser.Scene {
       { frame: "gj_fbIcon_001.png",      url: "https://www.facebook.com/RobTopGames",  angle: 0,   row: 0, col: 0 },
       { frame: "gj_twIcon_001.png",      url: "https://x.com/rohanis0000gd",       angle: -90, flipX: true, row: 0, col: 1 },
       { frame: "gj_ytIcon_001.png",      url: "https://www.youtube.com/@rohanis0000gd",  angle: 0,   row: 0, col: 2 },
-      { frame: "gj_twitchIcon_001.png",  url: "https://www.twitch.tv/robtopgames",     angle: -90, flipX: true, row: 0, col: 3 },
-      { frame: "gj_discordIcon_001.png", url: "https://discord.gg/TfEzAVWPSJ",        angle: 90,  row: 1, col: 3 },
     ];
     const _socialScale = 0.75;
     this._socialIcons = _socialIconDefs.map(def => {
@@ -237,11 +235,6 @@ class GameScene extends Phaser.Scene {
       }, () => this._menuActive);
       return icon;
     });
-    this._copyrightText = this.add.text(0, 625, "© 2026 RobTop Games · geometrydash.com", {
-      fontSize: "14px",
-      color: "#ffffff",
-      fontFamily: "Arial"
-    }).setOrigin(1, 1).setScrollFactor(0).setDepth(30).setAlpha(0.3);
     this._tryMeImg = this.add.image(0, 182.5, "GJ_WebSheet", "tryMe_001.png").setScrollFactor(0).setDepth(30);
     this._downloadBtns = [];
     const _0x4fc67f = [{
