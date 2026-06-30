@@ -416,7 +416,72 @@ this._menuFsBtn = this.add.image(33, 33, "GJ_WebSheet", _0x28fa5b ? "toggleFulls
             this._closeCreatorMenu(true);
             this._openEditorMenu();
           }, () => true);
-        }
+        } else if (isMapButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeMapMenu(true);
+            this._openMapMenu();
+          }, () => true);
+        } else if (isMapPacksButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeMapPacksMenu(true);
+            this._openMapPacksMenu();
+          }, () => true);
+        } else if (isGauntletsButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeGauntletsMenu(true);
+            this._openGauntletsMenu();
+          }, () => true);
+        } else if (isListsButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeListsMenu(true);
+            this._openListsMenu();
+          }, () => true);
+        } else if (isPathsButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closePathsMenu(true);
+            this._openPathsMenu();
+          }, () => true);
+        } else if (isDailyButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeDailyMenu(true);
+            this._openDailyMenu();
+          }, () => true);
+        } else if (isWeeklyButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeWeeklyMenu(true);
+            this._openWeeklyMenu();
+          }, () => true);
+        } else if (isEventButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeEventMenu(true);
+            this._openEventMenu();
+          }, () => true);
+        } else if (isHighscoreButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeHighscoreMenu(true);
+            this._openHighscoreMenu();
+          }, () => true);
+        } else if (isChallengeButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeChallengeMenu(true);
+            this._openChallengeMenu();
+          }, () => true);
+        } else if (isVersusButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeVersusMenu(true);
+            this._openVersusMenu();
+          }, () => true);
         this._creatorOverlayObjects.push(btn);
       });
     };
