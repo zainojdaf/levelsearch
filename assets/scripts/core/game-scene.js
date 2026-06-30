@@ -380,7 +380,18 @@ this._menuFsBtn = this.add.image(33, 33, "GJ_WebSheet", _0x28fa5b ? "toggleFulls
         const isSearchButton  = frame === "GJ_searchBtn_001.png";
         const isFeaturedButton = frame === "GJ_featuredBtn_001.png";
         const isSavedButton = frame === "GJ_savedBtn_001.png";
-        const isEditorButton = frame === "GJ_createBtn_001.png"; 
+        const isEditorButton = frame === "GJ_createBtn_001.png";
+        const isListsButton = frame === "GJ_listsBtn_001.png";
+        const isMapPacksButton = frame === "GJ_mapPacksBtn_001.png";
+        const isPathsButton = frame === "GJ_pathsBtn_001.png";
+        const isGauntletsButton = frame === "GJ_gauntletsBtn_001.png";
+        const isEventButton = frame === "GJ_eventBtn_001.png";
+        const isWeeklyButton = frame === "GJ_weeklyBtn_001.png";
+        const isDailyButton = frame === "GJ_dailyBtn_001.png";
+        const isMapButton = frame === "GJ_mapBtn_001.png";
+        const isVersusButton = frame === "GJ_versusBtn_001.png";
+        const isChallengeButton = frame === "GJ_challengeBtn_001.png";
+        const isHighscoreButton = frame === "GJ_highscoreBtn_001.png";
         if (isSearchButton) {
           btn.setInteractive();
           this._makeBouncyButton(btn, btnScale, () => {
