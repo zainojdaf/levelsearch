@@ -416,8 +416,6 @@ this._menuFsBtn = this.add.image(33, 33, "GJ_WebSheet", _0x28fa5b ? "toggleFulls
             this._closeCreatorMenu(true);
             this._openEditorMenu();
           }, () => true);
-        } else {
-          btn.setTint(0x666666);
         }
         this._creatorOverlayObjects.push(btn);
       });
