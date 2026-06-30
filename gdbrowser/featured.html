@@ -35,8 +35,8 @@ setInterval(() => sessionStorage.setItem('musicTime', music.currentTime), 500);
 
 	<div class="epicbox supercenter gs" style="width: 120vh; height: 80%; pointer-events: none;"></div>
 
-	<div class="center" style="position:absolute; top: 8%; left: 0%; right: 0%">
-		<h1 id="header">Featured</h1>
+	<div class="center" style="position:absolute; top: 4.5%; left: 0%; right: 0%; width: 100%">
+		<img src="assets/header/featuredLabel.png" style="height: 6.5vh; image-rendering: pixelated;">
 	</div>
 
 	<div style="text-align: right; position:absolute; top: 1%; right: 2%">
@@ -56,6 +56,10 @@ setInterval(() => sessionStorage.setItem('musicTime', music.currentTime), 500);
 
 	<div class="supercenter" id="loading" style="height: 10%; top: 47%; display: none;">
 		<img class="spin noSelect" src="assets/loading.png" height="105%">
+	</div>
+
+	<div id="savedToast" class="center supercenter" style="display:none; top: 90%; background: rgba(0,0,0,0.7); border-radius: 1.5vh; padding: 1vh 3vh; z-index: 50">
+		<h3 style="color:#ffd966">Level saved!</h3>
 	</div>
 
 </div>
@@ -110,8 +114,9 @@ function Append(firstLoad) {
 		// local difficulty images from the gdbrowser assets folder, no CDN
 		let diffSrc = `assets/difficulties/${x.difficultyFace || 'unrated'}.png`
 
-		// blue PLAY button, same as results.html - plays the level in-game
-		let playBtn = `<a title="Play level" onclick="playLevel('${clean(String(x.id))}')" style="cursor:pointer"><img style="margin-bottom: 4.5%" class="valign gdButton" src="assets/play.png" height="105%"></a>`
+		// view button - opens the level info page (gdbrowser style), not direct play
+		let viewBtn = `<a title="View level"><img style="margin-bottom: 4.5%" class="valign gdButton" src="assets/view.png" height="105%" onclick="location.href='level-info.html?id=${clean(String(x.id))}'"></a>`
+		let saveBtn = `<img title="Save level" class="valign gdButton" src="assets/plus.png" height="60%" style="margin-left: 1.5vh; cursor:pointer" onclick="saveLevel(event, ${clean(String(x.id))}, '${clean(x.name)}', '${clean(x.author)}', '${clean(x.difficultyFace)}', ${x.stars || 0}, '${clean(x.difficulty)}')">`
 
 		$('#searchBox').append(`<div class="searchResult" title="${clean(x.description)}">
 			<h1 class="lessspaced pre" style="width: fit-content; padding-right: 1%">${clean(x.name || " ")}</h1>
@@ -138,7 +143,7 @@ function Append(firstLoad) {
 	</div>
 </div>
 			<div class="center" style="position:absolute; right: 7%; transform:translateY(-16.25vh); height: 10%">
-				${playBtn}
+				${viewBtn}${saveBtn}
 				<p title="Level ID" style="text-align: right; color: rgba(0, 0, 0, 0.4); font-size: 2.2vh; transform: translate(2.8vh, 2.5vh)">#${x.id}</p>
 			</div>
 		</div>`)
@@ -150,9 +155,17 @@ function Append(firstLoad) {
 	}
 }
 
-// same zero-reload play hook as results.html
-function playLevel(id) {
-	window.parent.postMessage({ type: 'WD_PLAY_LEVEL', id: String(id) }, '*')
+// quick-save straight from the list row, same localStorage saved levels list
+// used by level-info.html's save button
+function saveLevel(e, id, name, author, difficultyFace, stars, difficulty) {
+	e.stopPropagation()
+	let saved = []
+	try { saved = JSON.parse(localStorage.getItem('wdSavedLevels') || '[]') } catch(err) {}
+	if (!saved.some(s => String(s.id) === String(id))) {
+		saved.push({ id, name, author, difficultyFace, stars, difficulty })
+		localStorage.setItem('wdSavedLevels', JSON.stringify(saved))
+	}
+	$('#savedToast').stop(true, true).css('opacity', 1).show().delay(1200).fadeOut(400)
 }
 
 Append(true)

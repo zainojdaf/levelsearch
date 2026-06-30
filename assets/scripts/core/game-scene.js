@@ -413,6 +413,7 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
           .setScrollFactor(0).setDepth(104).setScale(btnScale);
         const isSearchButton  = frame === "GJ_searchBtn_001.png";
         const isFeaturedButton = frame === "GJ_featuredBtn_001.png";
+        const isSavedButton = frame === "GJ_savedBtn_001.png";
         const isEditorButton = frame === "GJ_createBtn_001.png"; 
         if (isSearchButton) {
           btn.setInteractive();
@@ -425,6 +426,12 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
           this._makeBouncyButton(btn, btnScale, () => {
             this._closeCreatorMenu(true);
             this._openFeaturedMenu();
+          }, () => true);
+        } else if (isSavedButton) {
+          btn.setInteractive();
+          this._makeBouncyButton(btn, btnScale, () => {
+            this._closeCreatorMenu(true);
+            this._openSavedMenu();
           }, () => true);
         } else if (isEditorButton) {
           btn.setInteractive();
@@ -1072,6 +1079,24 @@ this._menuUpdateLogBtn = this.add.image(screenWidth - 30 - 50, 33, "GJ_WebSheet"
       const frame = document.createElement('iframe');
       frame.id = 'wd-search-iframe';
       frame.src = './gdbrowser/featured.html?v=' + Date.now();
+      frame.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:9999;background:#000;';
+      document.body.appendChild(frame);
+      window._wdSearchFrame = frame;
+      _ensureWdMsgListener();
+    };
+
+    // saved levels tab - same iframe pattern, points at saved.html
+    this._openSavedMenu = () => {
+      if (window._wdSearchFrame) return; // already open
+      try { this.input.keyboard.disableGlobalCapture(); } catch(e){}
+      try { this.input.keyboard.enabled = false; } catch(e){}
+      try { this.input.enabled = false; } catch(e){}
+      const audio = this._audio;
+      if (audio) try { audio.pauseMusic(); } catch(e){}
+
+      const frame = document.createElement('iframe');
+      frame.id = 'wd-search-iframe';
+      frame.src = './gdbrowser/saved.html?v=' + Date.now();
       frame.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;border:none;z-index:9999;background:#000;';
       document.body.appendChild(frame);
       window._wdSearchFrame = frame;
