@@ -235,23 +235,6 @@ class GameScene extends Phaser.Scene {
       }, () => this._menuActive);
       return icon;
     });
-    this._tryMeImg = this.add.image(0, 182.5, "GJ_WebSheet", "tryMe_001.png").setScrollFactor(0).setDepth(30);
-    this._downloadBtns = [];
-    const _0x4fc67f = [{
-      key: "downloadSteam_001",
-      url: "https://github.com/web-dashers/web-dashers.github.io"
-    },
-    {
-      key: "downloadApple_001",
-      url: "https://discord.gg/TfEzAVWPSJ"
-    }];
-    for (let _0xfeaf5c = 0; _0xfeaf5c < _0x4fc67f.length; _0xfeaf5c++) {
-      const _0x1ce2a6 = _0x4fc67f[_0xfeaf5c];
-      const _0x6bf69f = 1 / 1.5;
-      const _0x1d293f = this.add.image(0, 0, "GJ_WebSheet", _0x1ce2a6.key + ".png").setScrollFactor(0).setDepth(30).setScale(_0x6bf69f).setInteractive();
-      this._makeBouncyButton(_0x1d293f, _0x6bf69f, () => window.open(_0x1ce2a6.url, "_blank"), () => this._menuActive);
-      this._downloadBtns.push(_0x1d293f);
-    }
     const _0x28fa5b = this.scale.isFullscreen;
 this._menuFsBtn = this.add.image(33, 33, "GJ_WebSheet", _0x28fa5b ? "toggleFullscreenOff_001.png" : "toggleFullscreenOn_001.png").setScrollFactor(0).setDepth(30).setScale(0.64).setAlpha(0.8).setTint(Phaser.Display.Color.GetColor(255, 255, 255)).setInteractive();
     this._expandHitArea(this._menuFsBtn, 1.5);
