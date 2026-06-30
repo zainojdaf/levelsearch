@@ -164,7 +164,7 @@ function Append(firstLoad, noCache) {
 		let diffSrc = `assets/difficulties/${x.difficultyFace || 'unrated'}.png`
 
 		// PLAY button: same as GDBrowser view button but says PLAY and triggers game
-		let playBtn = `<a title="Play level" onclick="playLevel('${clean(String(x.id))}')" style="cursor:pointer"><img style="margin-bottom: 4.5%" class="valign gdButton" src="assets/play.png" height="105%"></a>`
+		let playBtn = `<a title="View level"><img style="margin-bottom: 4.5%" class="valign gdButton" src="assets/view.png" height="105%" onclick="location.href='level-info.html?id=${clean(String(x.id))}'"></a>`
 
 		// NOTE: use "searchResult" (capital R) to match the CSS class
 		$('#searchBox').append(`<div class="searchResult" title="${clean(x.description)}">

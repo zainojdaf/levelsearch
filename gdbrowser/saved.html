@@ -20,6 +20,17 @@ setInterval(() => sessionStorage.setItem('musicTime', music.currentTime), 500);
 
 <div id="everything" style="overflow: auto;">
 
+	<div class="popup" id="purgeDiv">
+		<div class="fancybox bounce center supercenter" style="width: 35%; height: 28%">
+			<h2 class="smaller center" style="font-size: 5.5vh">Delete All</h2>
+			<p class="bigger center" style="line-height: 5vh; margin-top: 1.5vh;">
+				Delete all saved online levels?<br><cy>Levels will be cleared from your browser.</cy>
+			</p>
+			<img src="assets/btn-cancel-green.png" height=25%; class="gdButton center closeWindow">
+			<img src="assets/btn-delete.png" height=25%; id="purgeSaved" class="gdButton center sideSpaceB">
+		</div>
+	</div>
+
 	<div style="position:absolute; bottom: 0%; left: 0%; width: 100%">
 		<img class="cornerPiece" src="assets/corner.png" width=7%;>
 	</div>
@@ -41,6 +52,10 @@ setInterval(() => sessionStorage.setItem('musicTime', music.currentTime), 500);
 		<img class="gdButton yesClick" id="backButton" src="assets/back.png" height="30%" onclick="window.parent.postMessage({type:'WD_CLOSE_SEARCH'},'*')">
 	</div>
 
+	<div id="purge" style="position:absolute; bottom: 1%; right: -3%; width: 10%; display:none;">
+		<img class="gdButton" src="assets/delete.png" width="60%" onclick="$('#purgeDiv').show()">
+	</div>
+
 </div>
 
 </body>
@@ -56,38 +71,76 @@ try { saved = JSON.parse(localStorage.getItem('wdSavedLevels') || '[]') } catch(
 if (saved.length === 0) {
 	$('#searchBox').append(`<div style="text-align:center; padding: 12% 0"><h1>No saved levels yet</h1><h3 style="margin-top:1.5%">Press the + button on a level to save it here.</h3></div>`)
 } else {
-	saved.forEach((x, y) => {
+	$('#purge').show()
+	saved.slice().reverse().forEach((x, y) => {
 		let diffSrc = `assets/difficulties/${x.difficultyFace || 'unrated'}.png`
+		let hasAuthor = (x.accountID && x.accountID != "0")
+
+		let filteredSong = clean((x.songName || "").replace(/[^ -~]/g, ""))
+		if (!filteredSong) filteredSong = clean(x.songName || "Unknown")
+
+		// view button - opens the level info page, no thumbnail image (matches real gdbrowser row, just no preview pic)
+		let viewBtn = `<a title="View level"><img style="margin-bottom: 4.5%" class="valign gdButton" src="assets/view.png" height="105%" onclick="location.href='level-info.html?id=${clean(String(x.id))}'"></a>`
+		let removeBtn = `<img title="Remove from saved" class="valign gdButton" src="assets/close.png" height="60%" style="margin-left: 1.5vh; cursor:pointer" onclick="removeSaved(event, ${clean(String(x.id))})">`
+
 		$('#searchBox').append(`<div class="searchResult" title="${clean(x.name)}">
 			<h1 class="lessspaced pre" style="width: fit-content; padding-right: 1%">${clean(x.name || " ")}</h1>
-			<h2 class="pre smaller inline gdButton help">By ${clean(x.author || "-")}</h2>
+			<h2 class="pre smaller inline gdButton help ${hasAuthor ? "" : "green unregistered"}"><!--
+				-->${hasAuthor ? `<a style="margin-right: 0.66vh" href="https://gdbrowser.com/u/${x.accountID}." target="_blank">By ${clean(x.author || "-")}</a>` : `By ${clean(x.author || "-")}`}</h2><!--
+				--><h2 class="inline" style="margin-left: 1.5%; transform:translateY(30%)">
+				${x.copiedID > 0 ? `<img class="help valign sideSpaceD" title="Original: ${x.copiedID}" src="assets/copied.png" height="12%">` : ''}<!--
+				-->${x.large ? `<img class="help valign sideSpaceD" title="Contains more than 40,000 objects" src="assets/large.png" height="12%">` : ''}<!--
+				-->${x.twoPlayer ? `<img class="help valign sideSpaceD" title="Two player level" src="assets/twoPlayer.png" height="12%">` : ''}
+			</h2>
+			<h3 class="lessSpaced help pre blue" style="overflow: hidden; max-height: 19%; width: fit-content; padding: 1% 1% 0% 0%">${filteredSong}</h3>
+			<h3 class="lessSpaced" style="width: fit-content">
+				<img class="help valign rightSpace" title="Length" src="assets/time.png" height="14%">${x.length ?? "-"}
+				<img class="help valign rightSpace" title="Downloads" src="assets/download.png" height="14%">${x.downloads ?? 0}
+				<img class="help valign rightSpace" title="Likes" src="assets/like.png" height="14%">${x.likes ?? 0}
+				${x.orbs ? `<img class="help valign rightSpace" title="Mana Orbs" src="assets/orbs.png" height="14%">${x.orbs}` : ""}
+			</h3>
 
-<div class="center" style="position:absolute; top: ${10 + (y * 33.5)}%; left: 4.4%; transform:scale(0.82); height: 10%; width: 12.5%;">
-	<img class="help spaced" title="${x.difficulty || ""}" src="${diffSrc}" height="150%" style="position: relative; z-index: 1;">
+<div class="center" style="position:absolute; top: ${6.5 + (y * 33.5) + (!x.coins ? 2.5 : 0)}%; left: 4.4%; transform:scale(0.82); height: 10%; width: 12.5%;">
+	<img class="help spaced" title="${x.difficulty || ""}" src="${diffSrc}" height="150%" style="margin-bottom: 0%; position: relative; z-index: 1;">
 	<h3 style="margin-top:0.8vh; position: relative; z-index: 2;">
 		${(x.difficulty || "").includes('Demon') ? "Demon" : (x.difficulty || "")}
 	</h3>
-	${x.stars > 0 ? `<h3 class="help" title="${x.stars} stars" style="position: relative; z-index: 2;">${x.stars}<img class="valign sideSpaceB" src="assets/star.png" height="35%" style="transform:translateY(-8%)"></h3>` : ""}
+	${x.stars > 0 ? `<h3 class="help" title="${x.stars} star${x.stars == 1 ? "" : "s"}" style="position: relative; z-index: 2;">${x.stars}<img class="valign sideSpaceB" src="assets/star.png" height="35%" style="transform:translateY(-8%)"></h3>` : ""}
+	${x.coins > 0 ? `<div style="margin-top: 3%; position: relative; z-index: 2;">
+		<img src="assets/${x.verifiedCoins ? 'silver' : 'brown'}coin.png" height="50%" class="help">
+		${x.coins > 1 ? `<img src="assets/${x.verifiedCoins ? 'silver' : 'brown'}coin.png" height="50%" class="help squeezeB">` : ""}
+		${x.coins > 2 ? `<img src="assets/${x.verifiedCoins ? 'silver' : 'brown'}coin.png" height="50%" class="help squeezeB">` : ""}
+	</div>` : ""}
 </div>
 
-			<div class="center" style="position:absolute; right: 7%; transform:translateY(-10vh); height: 10%; display:flex; align-items:center; gap: 1.5vh">
-				<a title="View level"><img class="valign gdButton" src="assets/view.png" height="42" onclick="location.href='level-info.html?id=${clean(String(x.id))}'"></a>
-				<img title="Remove from saved" class="valign gdButton" src="assets/close.png" height="32" style="cursor:pointer" onclick="removeSaved(${clean(String(x.id))})">
-				<p title="Level ID" style="text-align: right; color: rgba(0, 0, 0, 0.4); font-size: 2.2vh">#${x.id}</p>
+			<div class="center" style="position:absolute; right: 7%; transform:translateY(-16.25vh); height: 10%">
+				${viewBtn}${removeBtn}
+				<p title="Level ID" style="text-align: right; color: rgba(0, 0, 0, 0.4); font-size: 2.2vh; transform: translate(2.8vh, 2.5vh)">#${x.id}</p>
 			</div>
 		</div>`)
 	})
 	$('#searchBox').append('<div style="height: 4.5%"></div>')
 }
 
-function removeSaved(id) {
+function removeSaved(e, id) {
+	e.stopPropagation()
 	saved = saved.filter(s => String(s.id) !== String(id))
 	localStorage.setItem('wdSavedLevels', JSON.stringify(saved))
 	location.reload()
 }
 
+$('#purgeSaved').click(function() {
+	localStorage.removeItem('wdSavedLevels')
+	location.reload()
+})
+
+$('.closeWindow').click(function() { $(".popup").attr('style', 'display: none;') })
+
 $(document).keydown(function(k) {
-	if (k.keyCode == 27) window.parent.postMessage({type:'WD_CLOSE_SEARCH'},'*')
+	if (k.keyCode == 27) {
+		if ($('.popup').is(':visible')) $('.popup').hide()
+		else window.parent.postMessage({type:'WD_CLOSE_SEARCH'},'*')
+	}
 })
 
 $(window).resize(function() {

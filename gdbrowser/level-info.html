@@ -4,9 +4,6 @@
 	<link href="assets/css/browser.css" type="text/css" rel="stylesheet">
 	<style>
 		img { -webkit-user-drag: none; user-select: none; }
-		.commentRow { background: rgba(0,0,0,0.18); border-radius: 1vh; padding: 1.2vh 1.6vh; margin-bottom: 1vh; text-align: left; }
-		.lbRow { display:flex; align-items:center; padding: 0.8vh 1.4vh; border-bottom: 0.15vh solid rgba(0,0,0,0.15); }
-		.lbRow:nth-child(odd) { background: rgba(0,0,0,0.08); }
 	</style>
 </head>
 <audio id="menuMusic" src="../assets/music/menuLoop.mp3" loop></audio>
@@ -21,60 +18,39 @@ setInterval(() => sessionStorage.setItem('musicTime', music.currentTime), 500);
 
 <div id="everything">
 
-	<!-- level info popup - same wording/classes as real gdbrowser level.html -->
 	<div class="popup" id="infoDiv">
 		<div class="fancybox bounce center supercenter">
 			<h2 class="smaller center" style="font-size: 5.5vh">Level Info</h2>
 			<p class="bigger center" id="levelInfo" style="line-height: 5vh; margin-top: 1.5vh;"></p>
-			<img src="assets/ok.png" width="20%" class="gdButton center closeWindow">
+			<img src="assets/ok.png" width=20%; class="gdButton center closeWindow">
 		</div>
 	</div>
 
-	<!-- saved confirmation popup - matches real gdbrowser wording -->
 	<div class="popup" id="saveDiv">
 		<div class="fancybox bounce center supercenter">
 			<h2 class="smaller center" style="font-size: 5.5vh">Saved!</h2>
 			<p class="bigger center" style="line-height: 5vh; margin-top: 1.5vh;">
-				<span class="pre" style="color:lime" id="savedName"></span> has been added to your saved levels list.
+				<cy class="pre" id="savedName"></cy> has been added to your saved levels list.
 			</p>
-			<img src="assets/ok.png" width="20%" class="gdButton center closeWindow">
+			<img src="assets/ok.png" width=20%; class="gdButton center closeWindow">
 		</div>
 	</div>
 
-	<!-- delete confirmation popup -->
 	<div class="popup" id="deleteDiv">
 		<div class="fancybox bounce center supercenter" style="width: 60vh; height: 28%">
 			<h2 class="smaller center" style="font-size: 5.5vh">Delete Level</h2>
 			<p class="bigger center" style="line-height: 5vh; margin-top: 1.5vh;">
-				Are you sure you want to remove this level from your saved levels list?
+				Are you sure you want to <cr>delete</cr> this level from your saved levels list?
 			</p>
-			<img src="assets/btn-no.png" height="25%" class="gdButton center closeWindow">
-			<img src="assets/btn-yes.png" height="25%" class="gdButton center sideSpaceB" id="confirmDelete">
-		</div>
-	</div>
-
-	<!-- comments popup (simplified - real site renders each commenter's GD icon -->
-	<!-- with pixi.js, which is out of scope here, so this just lists text/likes) -->
-	<div class="popup" id="commentPopup">
-		<div class="brownBox bounce center supercenter" style="width: 100vh; height: 65%; padding: 1.5%">
-			<img class="gdButton" src="assets/close.png" width="7%" style="position: absolute; top: -8.5%; left: -5.5vh" onclick="$('#commentPopup').hide()">
-			<h1 style="margin-bottom: 2%">Comments</h1>
-			<div id="commentBody" style="text-align:left; overflow-y:auto; height: 80%; padding: 0 1%"></div>
-		</div>
-	</div>
-
-	<!-- leaderboard popup -->
-	<div class="popup" id="lbPopup">
-		<div class="brownBox bounce center supercenter" style="width: 80vh; height: 65%; padding: 1.5%">
-			<img class="gdButton" src="assets/close.png" width="7%" style="position: absolute; top: -8.5%; left: -5.5vh" onclick="$('#lbPopup').hide()">
-			<h1 style="margin-bottom: 2%">Leaderboard</h1>
-			<div id="lbBody" style="text-align:left; overflow-y:auto; height: 80%; padding: 0 1%"></div>
+			<img src="assets/btn-no.png" height=25%; class="gdButton center closeWindow">
+			<img src="assets/btn-yes.png" height=25%; class="gdButton center sideSpaceB" id="confirmDelete">
 		</div>
 	</div>
 
 	<div style="position:absolute; bottom: 0%; left: 0%; width: 100%">
 		<img class="cornerPiece" src="assets/corner.png" width=7%;>
 	</div>
+
 	<div style="position:absolute; bottom: 0%; right: 0%; width: 100%; text-align: right;">
 		<img class="cornerPiece" src="assets/corner.png" width=7%; style="transform: scaleX(-1)">
 	</div>
@@ -90,19 +66,18 @@ setInterval(() => sessionStorage.setItem('musicTime', music.currentTime), 500);
 		</div>
 
 		<div class="center" style="position:absolute; top: 9%; left: 0%; right: 0%; height: 5%;">
-			<h2 class="pre inline slightlySmaller normalCursor gdButton" id="authorName">
-				<a class="linkButton" id="authorLink" style="color:inherit; text-decoration:none" target="_blank">By <span id="lvlAuthor"></span></a>
-			</h2>
+			<h2 class="pre inline slightlySmaller normalCursor gdButton" id="authorName"><a class="linkButton" id="authorLink" target="_blank" style="color:inherit; text-decoration:none">By <span id="lvlAuthor"></span></a></h2>
 			<h2 class="inline slightlySmaller normalCursor sideSpaceC">
-				<img class="inline valign" id="2pBadge" style="display: none; height: 60%; cursor:help" src="assets/twoPlayer.png" title="Two player level">
+				<img class="inline valign" id="copiedBadge" style="display: none; height: 60%; cursor:help" src="assets/copied.png" title="Level is a copy or a collaboration">
 				<img class="inline valign" id="largeBadge" style="display: none; height: 60%; margin-left: -7%; cursor:help" src="assets/large.png" title="Contains more than 40,000 objects">
+				<img class="inline valign" id="2pBadge" style="display: none; height: 60%; margin-left: -7%; cursor:help" src="assets/twoPlayer.png" title="Two player level">
 			</h2>
 		</div>
 
 		<div class="center valign" style="position:absolute; top: 10.5%; left: 27%; transform:scale(0.8); height: 100%; width: 20%">
 			<img class="spaced" id="diffFace" src="" height="15%" style="margin-bottom: 0%">
 			<h1 class="smaller" id="difficultytext" style="transform:scale(0.9);"></h1>
-			<h1 class="smaller inline stars" id="starText" style="transform:scale(0.9); display:none"></h1> <img class="inline stars" id="starIcon" src="assets/star.png" height=4%; style="transform:translateY(-12%); display:none"><br class="stars">
+			<h1 class="smaller inline stars" id="starText" style="transform:scale(0.9)"></h1> <img class="inline stars" id="starIcon" src="assets/star.png" height=4%; style="transform:translateY(-12%)"><br class="stars">
 			<div id="coins" style="margin-top: 3%"></div>
 		</div>
 
@@ -133,14 +108,12 @@ setInterval(() => sessionStorage.setItem('musicTime', music.currentTime), 500);
 		</div>
 
 		<div class="center noClick" style="position:absolute; top: 24%; right: 0%; min-width: 100%">
-			<img class="gdButton yesClick" id="playButton" src="assets/playbuttonlevel.png" width="11%">
+			<img class="gdButton yesClick" id="playButton" src="assets/play.png" width="11%">
 		</div>
 
 		<div class="levelButtons" style="position:absolute; top: 46%; right: 3.5%; transform: translateY(-50%); height: 75%;">
 			<img class="gdButton sideButton" title="Save level" id="saveButton" src="assets/plus.png"><br>
 			<img class="gdButton sideButton" title="Level Info" id="infoButton" src="assets/info.png"><br>
-			<img class="gdButton sideButton" title="View Comments" src="assets/comment.png" id="commentBtn"><br>
-			<img id="leaderboardbtn" title="View Leaderboard" class="gdButton sideButton" src="assets/leaderboard.png" id="lbBtn"><br>
 		</div>
 
 	</div>
@@ -172,14 +145,12 @@ fetch(`https://gdbrowser.com/api/level/${levelID}`)
 		$('#lvlName').text(lvl.name || "-")
 		$('#lvlAuthor').text(lvl.author || "-")
 		$('#authorLink').attr('href', `https://gdbrowser.com/u/${lvl.accountID || 0}.`)
+		if (!lvl.accountID || lvl.accountID == "0") $('#authorName').addClass('green').addClass('unregistered')
 
 		$('#diffFace').attr('src', `assets/difficulties/${lvl.difficultyFace || 'unrated'}.png`)
 		$('#difficultytext').html((lvl.difficulty || "").replace(' ', "<br>"))
 
-		if (lvl.stars > 0) {
-			$('#starText').text(lvl.stars).show()
-			$('#starIcon').show()
-		}
+		if (lvl.stars > 0) { $('#starText').text(lvl.stars); $('#starIcon').show() } else { $('.stars').hide() }
 
 		$('#statDownloads').text(lvl.downloads ?? 0)
 		$('#statLikes').text(lvl.likes ?? 0)
@@ -197,15 +168,18 @@ fetch(`https://gdbrowser.com/api/level/${levelID}`)
 
 		if (lvl.large) $('#largeBadge').show()
 		if (lvl.twoPlayer) $('#2pBadge').show()
+		if (lvl.copiedID > 0) $('#copiedBadge').show()
 
 		$('#songname').text(clean(lvl.songName || "Unknown"))
 		$('#songAuthor').text(lvl.songAuthor || "-")
-		$('#songInfo').text(`SongID: ${lvl.songID ?? "-"}   Size: ${lvl.songSize ? lvl.songSize + "MB" : "-"}`)
+		if (String(lvl.songID || "").toString().startsWith("Level")) $('#songInfo').text(lvl.songID)
+		else $('#songInfo').text(`SongID: ${lvl.songID ?? "-"}   Size: ${lvl.songSize ? lvl.songSize + "MB" : "-"}`)
 
-		// level info popup body, same layout as the real gdbrowser popup
+		// level info popup body, same layout/wording as the real gdbrowser popup
 		let info = `<span class="pre" style="color:lime">${clean(lvl.name)}</span><br>ID: <cy>${lvl.id}</cy>`
 		if (lvl.copiedID > 0) info += `<br>Original: <cy>${lvl.copiedID}</cy>`
 		info += `<br>Password: <co>${lvl.password === null ? "Not copyable" : (lvl.password === 0 ? "No copy" : lvl.password === 1 ? "Free copy" : lvl.password)}</co>`
+		info += `<br>Low Detail: <co>${lvl.ldm ? "Yes" : "No"}</co>`
 		if (lvl.uploadDate) info += `<br>Uploaded: <co>${clean(lvl.uploadDate)}</co>`
 		if (lvl.updateDate) info += `<br>Updated: <co>${clean(lvl.updateDate)}</co>`
 		info += `<br>Version: <cy>${lvl.levelVersion ?? "-"}</cy>`
@@ -232,7 +206,7 @@ $('#saveButton').click(() => {
 	if (!lvl) return
 	let isSaved = savedLevels.some(s => String(s.id) === String(lvl.id))
 	if (isSaved) { $('#deleteDiv').show(); return }
-	savedLevels.push({ id: lvl.id, name: lvl.name, author: lvl.author, difficultyFace: lvl.difficultyFace, stars: lvl.stars, difficulty: lvl.difficulty })
+	savedLevels.push({ id: lvl.id, name: lvl.name, author: lvl.author, accountID: lvl.accountID, difficultyFace: lvl.difficultyFace, stars: lvl.stars, difficulty: lvl.difficulty, songName: lvl.songName, songID: lvl.songID, length: lvl.length, downloads: lvl.downloads, likes: lvl.likes, orbs: lvl.orbs, coins: lvl.coins, verifiedCoins: lvl.verifiedCoins, twoPlayer: lvl.twoPlayer, large: lvl.large, copiedID: lvl.copiedID })
 	localStorage.setItem('wdSavedLevels', JSON.stringify(savedLevels))
 	refreshSaveButton()
 	$('#savedName').text(lvl.name || "-")
@@ -247,45 +221,6 @@ $('#confirmDelete').click(() => {
 })
 
 $('#infoButton').click(() => { if (lvl) $('#infoDiv').show() })
-
-$('#commentBtn').click(() => {
-	if ($('#commentBody').is(':empty')) {
-		$('#commentBody').html('<h3>Loading...</h3>')
-		fetch(`https://gdbrowser.com/api/comments/${levelID}?count=30`)
-			.then(r => r.ok ? r.json() : Promise.reject())
-			.then(comments => {
-				if (!Array.isArray(comments) || comments.length === 0) { $('#commentBody').html('<h3>No comments yet.</h3>'); return }
-				$('#commentBody').html(comments.map(c => `
-					<div class="commentRow">
-						<h3 style="color:#ffd966">${clean(c.username || c.author || "Player")} <span style="color:white; font-weight:normal; font-size:0.8em">(${c.likes ?? 0} likes)</span></h3>
-						<p>${clean(c.comment || c.text || "")}</p>
-					</div>
-				`).join(""))
-			})
-			.catch(() => $('#commentBody').html('<h3>Could not load comments.</h3>'))
-	}
-	$('#commentPopup').show()
-})
-
-$('#lbBtn').click(() => {
-	if ($('#lbBody').is(':empty')) {
-		$('#lbBody').html('<h3>Loading...</h3>')
-		fetch(`https://gdbrowser.com/api/leaderboard/${levelID}?count=30`)
-			.then(r => r.ok ? r.json() : Promise.reject())
-			.then(board => {
-				if (!Array.isArray(board) || board.length === 0) { $('#lbBody').html('<h3>No leaderboard entries.</h3>'); return }
-				$('#lbBody').html(board.map((p, i) => `
-					<div class="lbRow">
-						<h3 style="width: 10%">#${i + 1}</h3>
-						<h3 style="width: 50%; color:#ffd966">${clean(p.username || p.player || "-")}</h3>
-						<h3 style="width: 40%; text-align:right">${p.percent ?? p.percentage ?? "-"}%</h3>
-					</div>
-				`).join(""))
-			})
-			.catch(() => $('#lbBody').html('<h3>Could not load leaderboard.</h3>'))
-	}
-	$('#lbPopup').show()
-})
 
 $('.closeWindow').click(function() { $(".popup").attr('style', 'display: none;') })
 
