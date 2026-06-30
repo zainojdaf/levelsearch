@@ -482,6 +482,7 @@ this._menuFsBtn = this.add.image(33, 33, "GJ_WebSheet", _0x28fa5b ? "toggleFulls
             this._closeVersusMenu(true);
             this._openVersusMenu();
           }, () => true);
+        }
         this._creatorOverlayObjects.push(btn);
       });
     };
