@@ -68,6 +68,28 @@ function clean(text) { return (text || "").toString().replace(/&/g, "&#38;").rep
 let saved = []
 try { saved = JSON.parse(localStorage.getItem('wdSavedLevels') || '[]') } catch(e) {}
 
+// older saved entries (saved before the full row data was stored) only have
+// id/name/author/difficultyFace/stars/difficulty - backfill the rest from the api
+async function backfillSaved() {
+	let changed = false
+	for (let i = 0; i < saved.length; i++) {
+		if (saved[i].songName === undefined) {
+			try {
+				let r = await fetch(`https://gdbrowser.com/api/level/${saved[i].id}`)
+				if (r.ok) {
+					let d = await r.json()
+					saved[i] = { id: d.id, name: d.name, author: d.author, accountID: d.accountID, difficultyFace: d.difficultyFace, stars: d.stars, difficulty: d.difficulty, songName: d.songName, songID: d.songID, length: d.length, downloads: d.downloads, likes: d.likes, orbs: d.orbs, coins: d.coins, verifiedCoins: d.verifiedCoins, twoPlayer: d.twoPlayer, large: d.large, copiedID: d.copiedID }
+					changed = true
+				}
+			} catch(e) {}
+		}
+	}
+	if (changed) localStorage.setItem('wdSavedLevels', JSON.stringify(saved))
+	renderSaved()
+}
+
+function renderSaved() {
+
 if (saved.length === 0) {
 	$('#searchBox').append(`<div style="text-align:center; padding: 12% 0"><h1>No saved levels yet</h1><h3 style="margin-top:1.5%">Press the + button on a level to save it here.</h3></div>`)
 } else {
@@ -101,7 +123,7 @@ if (saved.length === 0) {
 			</h3>
 
 <div class="center" style="position:absolute; top: ${6.5 + (y * 33.5) + (!x.coins ? 2.5 : 0)}%; left: 4.4%; transform:scale(0.82); height: 10%; width: 12.5%;">
-	<img class="help spaced" title="${x.difficulty || ""}" src="${diffSrc}" height="150%" style="margin-bottom: 0%; position: relative; z-index: 1;">
+	<img class="help spaced" title="${x.difficulty || ""}" src="${diffSrc}" height="150%" style="margin-bottom: 0%; position: relative; z-index: 1; ${x.difficultyFace && x.difficultyFace.includes('mythic') ? 'transform:scale(1.45);' : x.difficultyFace && x.difficultyFace.includes('legendary') ? 'transform:scale(1.45);' : x.difficultyFace && x.difficultyFace.includes('epic') ? 'transform:scale(1.25);' : x.difficultyFace && x.difficultyFace.includes('featured') ? 'transform:scale(1.1);' : ''}">
 	<h3 style="margin-top:0.8vh; position: relative; z-index: 2;">
 		${(x.difficulty || "").includes('Demon') ? "Demon" : (x.difficulty || "")}
 	</h3>
@@ -121,6 +143,9 @@ if (saved.length === 0) {
 	})
 	$('#searchBox').append('<div style="height: 4.5%"></div>')
 }
+}
+
+backfillSaved()
 
 function removeSaved(e, id) {
 	e.stopPropagation()
